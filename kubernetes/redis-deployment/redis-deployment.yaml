@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      volumes:
+      - name: redis-pv
+        persistentVolumeClaim:
+          claimName: pvc-redis
+      containers:
+      - name: redis
+        image: webhippie/redis:latest
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - mountPath: "/var/lib/redis"
+          name: redis-pv 
+        env:
+        - name: REDIS_DATABASES
+          value: "1"

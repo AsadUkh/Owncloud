@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    traefik.docker.network: proxy
+    traefik.enable: "true"
+    traefik.http.routers.owncloud-secure.entrypoints: https
+    traefik.http.routers.owncloud-secure.rule: Host(`cloud.owncloud.local`)
+    traefik.http.routers.owncloud-secure.service: owncloud
+    traefik.http.routers.owncloud-secure.tls: "true"
+    traefik.http.routers.owncloud.entrypoints: http
+    traefik.http.routers.owncloud.middlewares: https-redirect@file
+    traefik.http.routers.owncloud.rule: Host(`cloud.owncloud.local`)
+    traefik.http.services.owncloud.loadbalancer.server.port: "8080"
+  labels:
+    app: owncloud
+  name: owncloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: owncloud
+  template:
+    metadata:
+      labels:
+        app: owncloud
+    spec:
+      volumes:
+      - name: owncloud-pv
+        persistentVolumeClaim:
+          claimName: pvc-owncloud
+      containers:
+      - name: owncloud
+        image: owncloud/server:10.4.1
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: "/mnt/data"
+          name: owncloud-pv 
+        env:
+        - name: OWNCLOUD_ADMIN_PASSWORD
+          value: letmein
+        - name: OWNCLOUD_ADMIN_USERNAME
+          value: admin
+        - name: OWNCLOUD_DB_HOST
+          value: db
+        - name: OWNCLOUD_DB_NAME
+          value: owncloud
+        - name: OWNCLOUD_DB_PASSWORD
+          value: owncloud
+        - name: OWNCLOUD_DB_TYPE
+          value: mysql
+        - name: OWNCLOUD_DB_USERNAME
+          value: owncloud
+        - name: OWNCLOUD_DOMAIN
+          value: cloud.owncloud.local
+        - name: OWNCLOUD_MYSQL_UTF8MB4
+          value: "true"
+        - name: OWNCLOUD_REDIS_ENABLED
+          value: "true"
+        - name: OWNCLOUD_REDIS_HOST
+          value: redis
+        - name: OWNCLOUD_SESSION_SAVE_HANDLER
+          value: redis
+        - name: OWNCLOUD_SESSION_SAVE_PATH
+          value: tcp://redis:6379
+
+

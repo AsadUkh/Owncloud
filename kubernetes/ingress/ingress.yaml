@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: traefik
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - owncloud.ivolve.com
+    secretName: owncloud-tls
+    #  - hosts:
+    # - rocket.ivolve.com
+    secretName: rocket-tls
+    #- hosts:  
+    #- jitsi.ivolve.com
+    #secretName: testsecret-tls
+  rules:
+  - host: owncloud.ivolve.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: owncloud
+          servicePort: 8080
+          #  - host: rocket.ivolve.com
+          #http:
+          #paths:
+      - path: /rocket
+        backend:
+          serviceName: rocketchat
+          servicePort: 3000
+          # - host: jitsi.ivolve.com
+          # http:
+          # paths:
+      - path: /openproj
+        backend:
+          serviceName: web
+          servicePort: 8080
+

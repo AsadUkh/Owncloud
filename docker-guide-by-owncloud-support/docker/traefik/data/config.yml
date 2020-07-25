@@ -1,0 +1,10 @@
+http:
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+
+    security-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: https

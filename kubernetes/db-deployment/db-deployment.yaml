@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: db
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      volumes:
+      - name: db-pv
+        persistentVolumeClaim:
+          claimName: pvc-db
+      - name: backup-pv
+        persistentVolumeClaim:
+          claimName: pvc-backup
+      containers:
+      - name: db
+        image: webhippie/mariadb:latest
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - mountPath: "/var/lib/mysql"
+          name: db-pv
+        - mountPath: "/var/lib/backup"
+          name: backup-pv
+        env:
+        - name: MARIADB_DATABASE
+          value: owncloud
+        - name: MARIADB_INNODB_LOG_FILE_SIZE
+          value: 64M 
+        - name: MARIADB_MAX_ALLOWED_PACKET
+          value: 128M
+        - name: MARIADB_PASSWORD
+          value: owncloud
+        - name: MARIADB_ROOT_PASSWORD
+          value: owncloud
+        - name: MARIADB_USERNAME
+          value: owncloud
+
+
